@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d0f14;--bg2:#13161d;--bg3:#1a1e28;--bg4:#20263a;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);
+  --text:#e8eaf0;--muted:#6b7280;--muted2:#9ca3af;
+  --red:#f43f5e;--red-dim:rgba(244,63,94,0.12);
+  --amber:#f59e0b;--amb-dim:rgba(245,158,11,0.12);
+  --green:#10b981;--grn-dim:rgba(16,185,129,0.12);
+  --blue:#3b82f6;--blu-dim:rgba(59,130,246,0.12);
+  --purple:#8b5cf6;--pur-dim:rgba(139,92,246,0.12);
+  --accent:#6366f1;--acc-dim:rgba(99,102,241,0.15);
+}
+body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);font-size:13px;line-height:1.5;min-height:100vh}
+.hidden{display:none!important}
+
+/* LOGIN */
+.login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}
+.login-box{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;padding:36px 32px;width:100%;max-width:420px}
+.login-logo{width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,var(--accent),#818cf8);display:flex;align-items:center;justify-content:center;font-size:22px;margin:0 auto 20px}
+.login-title{text-align:center;font-size:20px;font-weight:600;margin-bottom:4px}
+.login-sub{text-align:center;font-size:12px;color:var(--muted);margin-bottom:28px}
+.role-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
+.role-btn{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:14px 12px;cursor:pointer;transition:all .2s;text-align:center}
+.role-btn:hover,.role-btn.selected{border-color:var(--accent);background:var(--acc-dim)}
+.role-btn.selected{border-width:2px}
+.role-icon{font-size:22px;margin-bottom:6px}
+.role-name{font-size:12px;font-weight:500}
+.role-desc{font-size:10px;color:var(--muted);margin-top:2px}
+.login-btn{width:100%;padding:12px;border-radius:8px;background:var(--accent);border:none;color:#fff;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;transition:opacity .2s}
+.login-btn:hover{opacity:.85}
+.login-btn:disabled{opacity:.4;cursor:not-allowed}
+
+/* HEADER */
+.header{background:var(--bg2);border-bottom:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.header-left{display:flex;align-items:center;gap:12px}
+.logo{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--accent),#818cf8);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.header-title{font-size:14px;font-weight:600}
+.header-sub{font-size:11px;color:var(--muted)}
+.header-right{display:flex;align-items:center;gap:8px}
+.role-badge{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:500}
+.logout-btn{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:5px 10px;color:var(--muted);cursor:pointer;font-size:11px;font-family:inherit;transition:all .2s}
+.logout-btn:hover{color:var(--text)}
+
+/* NAV */
+.nav{display:flex;gap:2px;padding:12px 20px 0;background:var(--bg2);border-bottom:1px solid var(--border);overflow-x:auto}
+.nav-tab{padding:8px 16px;border-radius:8px 8px 0 0;font-size:12px;cursor:pointer;color:var(--muted);border:1px solid transparent;border-bottom:none;white-space:nowrap;transition:all .15s}
+.nav-tab.active{background:var(--bg);color:var(--text);font-weight:500;border-color:var(--border);border-bottom-color:var(--bg)}
+
+/* CONTENT */
+.content{padding:16px 20px 24px}
+
+/* CARDS */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:10px}
+.card-title{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px}
+.card-tag{font-size:10px;padding:2px 8px;border-radius:10px;font-weight:500}
+
+/* GRIDS */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:10px}
+.kpi-grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:10px}
+.kpi-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.kpi-val{font-size:28px;font-weight:700;letter-spacing:-.02em;line-height:1}
+.kpi-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+.kpi-sub{font-size:11px;color:var(--muted);margin-top:5px}
+.mini-progress{height:3px;background:var(--bg3);border-radius:2px;margin-top:8px}
+.mini-fill{height:3px;border-radius:2px}
+
+/* FILTER BAR */
+.filter-bar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;align-items:center}
+.filter-btn{padding:5px 12px;border-radius:20px;font-size:11px;border:1px solid var(--border);background:var(--bg2);color:var(--muted);cursor:pointer;transition:all .15s;font-family:inherit}
+.filter-btn.active,.filter-btn:hover{border-color:var(--accent);color:var(--text);background:var(--acc-dim)}
+.filter-btn.active{font-weight:500}
+.filter-label{font-size:11px;color:var(--muted);margin-right:4px}
+
+/* TABLE */
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead th{padding:7px 10px;text-align:left;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);border-bottom:1px solid var(--border);white-space:nowrap}
+tbody tr{border-bottom:1px solid rgba(255,255,255,0.04);transition:background .1s;cursor:pointer}
+tbody tr:hover{background:rgba(255,255,255,0.03)}
+tbody td{padding:8px 10px}
+.pill{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:500}
+
+/* AREA BARS */
+.area-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.area-row:last-child{margin-bottom:0}
+.area-name{width:90px;font-size:12px;flex-shrink:0}
+.area-track{flex:1;height:24px;background:var(--bg3);border-radius:6px;position:relative;overflow:visible;cursor:pointer}
+.area-fill{height:100%;border-radius:6px;display:flex;align-items:center;padding-left:8px;font-size:11px;font-weight:500}
+.ref-line{position:absolute;left:60%;top:-4px;bottom:-4px;width:1px;background:rgba(255,255,255,0.15);z-index:2}
+.ref-label{position:absolute;top:-18px;left:-12px;font-size:9px;color:var(--muted);white-space:nowrap}
+
+/* RISK ITEMS */
+.risk-item{display:flex;align-items:center;gap:10px;padding:8px;border-radius:8px;background:var(--bg3);margin-bottom:6px;cursor:pointer;transition:background .15s}
+.risk-item:hover{background:var(--bg4)}
+.risk-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+/* SOLICITUDES */
+.sol-item{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:8px;transition:border-color .2s}
+.sol-item:hover{border-color:var(--border2)}
+.sol-name{font-size:13px;font-weight:500}
+.sol-meta{font-size:11px;color:var(--muted);margin-top:2px}
+.sol-body{font-size:12px;color:var(--muted2);line-height:1.6;margin:8px 0}
+.sol-actions{display:flex;gap:8px;flex-wrap:wrap}
+
+/* HISTORIAL ACCIONES */
+.action-log{background:var(--bg3);border-radius:8px;padding:10px 12px;margin-bottom:6px;display:flex;align-items:center;gap:10px}
+.action-icon{font-size:16px;flex-shrink:0}
+.action-text{font-size:12px;color:var(--text)}
+.action-sub{font-size:11px;color:var(--muted)}
+.action-time{font-size:10px;color:var(--muted);font-family:monospace;margin-left:auto;flex-shrink:0}
+
+/* BTNS */
+.btn{padding:6px 14px;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;border:none;font-family:inherit;transition:all .2s}
+.btn-green{background:var(--grn-dim);color:var(--green);border:1px solid rgba(16,185,129,0.3)}
+.btn-green:hover{background:rgba(16,185,129,.2)}
+.btn-red{background:var(--red-dim);color:var(--red);border:1px solid rgba(244,63,94,0.3)}
+.btn-red:hover{background:rgba(244,63,94,.2)}
+.btn-blue{background:var(--blu-dim);color:var(--blue);border:1px solid rgba(59,130,246,0.3)}
+.btn-blue:hover{background:rgba(59,130,246,.2)}
+.btn-ghost{background:var(--bg3);color:var(--muted2);border:1px solid var(--border)}
+.btn-ghost:hover{border-color:var(--border2);color:var(--text)}
+.btn-accent{background:var(--accent);color:#fff;border:1px solid transparent}
+.btn-accent:hover{opacity:.85}
+.btn-amber{background:var(--amb-dim);color:var(--amber);border:1px solid rgba(245,158,11,0.3)}
+
+/* FORM */
+.form-group{margin-bottom:14px}
+.form-label{font-size:11px;font-weight:500;color:var(--muted2);margin-bottom:6px;display:block;text-transform:uppercase;letter-spacing:.04em}
+.form-input,.form-select,.form-textarea{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-size:13px;font-family:inherit;transition:border-color .2s;outline:none}
+.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--accent)}
+.form-select option{background:var(--bg3)}
+.form-textarea{resize:vertical;min-height:80px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .2s}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:14px;padding:24px;width:100%;max-width:500px;transform:translateY(8px);transition:transform .2s;max-height:90vh;overflow-y:auto}
+.modal-overlay.open .modal{transform:translateY(0)}
+.modal-title{font-size:15px;font-weight:600;margin-bottom:4px}
+.modal-sub{font-size:12px;color:var(--muted);margin-bottom:16px}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
+
+/* NOTIFICATION */
+.notif{position:fixed;top:70px;right:16px;background:var(--bg2);border:1px solid var(--border2);border-left-width:3px;border-radius:10px;padding:12px 16px;font-size:12px;z-index:999;opacity:0;transform:translateY(-8px);transition:all .3s;pointer-events:none;max-width:300px;line-height:1.5}
+.notif.show{opacity:1;transform:translateY(0)}
+
+/* TIMELINE */
+.tl{padding-left:16px}
+.tl-item{position:relative;margin-bottom:14px;padding-left:20px}
+.tl-dot{position:absolute;left:-8px;top:4px;width:8px;height:8px;border-radius:50%}
+.tl-line{position:absolute;left:-4px;top:12px;bottom:-14px;width:1px;background:var(--border)}
+.tl-item:last-child .tl-line{display:none}
+.tl-title{font-size:12px;font-weight:500}
+.tl-sub{font-size:11px;color:var(--muted);margin-top:2px}
+
+/* NARRATIVE */
+.narrative{background:linear-gradient(135deg,rgba(99,102,241,0.08),rgba(244,63,94,0.06));border:1px solid rgba(99,102,241,0.2);border-radius:10px;padding:12px 14px;margin-bottom:12px;font-size:12px;color:#a5b4fc;line-height:1.6}
+.narrative strong{color:var(--text)}
+
+/* DRILL DOWN */
+.drill-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;background:var(--bg3);margin-bottom:5px;cursor:pointer;transition:background .15s}
+.drill-item:hover{background:var(--bg4)}
+
+/* BADGE PENDIENTE */
+.pending-badge{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:var(--red);color:#fff;font-size:10px;font-weight:700;margin-left:5px}
+
+/* STAT ROW */
+.stat-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.stat-box{background:var(--bg3);border-radius:8px;padding:10px 14px;flex:1;min-width:70px}
+.stat-val{font-size:20px;font-weight:600;font-family:monospace}
+.stat-lbl{font-size:10px;color:var(--muted);margin-top:2px}
+
+/* FLUJO APROBACION */
+.flow{display:flex;align-items:center;gap:4px;margin-bottom:14px;flex-wrap:wrap}
+.flow-step{padding:6px 10px;border-radius:6px;font-size:11px;font-weight:500;flex:1;text-align:center}
+.flow-arrow{color:var(--muted);font-size:14px;flex-shrink:0}
+
+/* PRED */
+.pred-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)}
+.pred-row:last-child{border:none}
+.pred-week{font-size:11px;color:var(--muted);width:75px;flex-shrink:0}
+.pred-bars{flex:1;display:flex;gap:4px}
+.pred-area{flex:1;height:22px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:#fff;position:relative;cursor:pointer;transition:opacity .15s}
+.pred-area:hover{opacity:.8}
+</style>
+</head>
+<body>
+
+<div class="notif" id="notif"></div>
+<div class="modal-overlay" id="modal"><div class="modal">
+  <div class="modal-title" id="mt"></div>
+  <div class="modal-sub" id="ms"></div>
+  <div id="mb"></div>
+  <div class="modal-actions" id="ma"></div>
+</div></div>
+
+<!-- LOGIN -->
+<div id="login-screen" class="login-screen">
+  <div class="login-box">
+    <div class="login-logo">📊</div>
+    <div class="login-title">IT Workforce Intelligence</div>
+    <div class="login-sub">Selecciona tu perfil para continuar</div>
+    <div class="role-grid">
+      <div class="role-btn" onclick="selectRole('ceo',this)"><div class="role-icon">👔</div><div class="role-name">CEO</div><div class="role-desc">Vista ejecutiva</div></div>
+      <div class="role-btn" onclick="selectRole('rh',this)"><div class="role-icon">👥</div><div class="role-name">Recursos Humanos</div><div class="role-desc">Gestión completa</div></div>
+      <div class="role-btn" onclick="selectRole('supervisor',this)"><div class="role-icon">🖥️</div><div class="role-name">Supervisor IT</div><div class="role-desc">Mi área + aprobaciones</div></div>
+      <div class="role-btn" onclick="selectRole('empleado',this)"><div class="role-icon">👤</div><div class="role-name">Empleado</div><div class="role-desc">Mi perfil y permisos</div></div>
+    </div>
+    <button class="login-btn" id="login-btn" disabled onclick="doLogin()">Ingresar al sistema</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app" class="hidden">
+  <div class="header">
+    <div class="header-left">
+      <div class="logo">📊</div>
+      <div><div class="header-title">IT Workforce Intelligence</div><div class="header-sub" id="hsub">Abril 2026</div></div>
+    </div>
+    <div class="header-right">
+      <div class="role-badge" id="rbadge"></div>
+      <button class="logout-btn" onclick="logout()">Cerrar sesión</button>
+    </div>
+  </div>
+  <div class="nav" id="nav"></div>
+  <div class="content" id="content"></div>
+</div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────────
+let role=null, tab=0;
+let actionLog=[];
+
+let solicitudes=[
+  {id:1,emp:'Diego Romero',area:'IT Support',tipo:'Médico',subtipo:'Enfermedad propia',dias:5,inicio:'2026-05-05',motivo:'Consulta médica y reposo por diagnóstico de gripe severa con complicaciones respiratorias.',status:'pendiente',etapa:'supervisor',prioridad:'alta'},
+  {id:2,emp:'Ana Salas',area:'IT Support',tipo:'Vacaciones',subtipo:'Vacaciones acumuladas',dias:15,inicio:'2026-05-20',motivo:'Solicito hacer uso de mis 15 días de vacaciones acumuladas antes de su fecha de vencimiento el 19 de mayo.',status:'pendiente',etapa:'supervisor',prioridad:'alta'},
+  {id:3,emp:'Hugo Vega',area:'DevOps',tipo:'Personal',subtipo:'Asuntos familiares',dias:3,inicio:'2026-05-12',motivo:'Necesito atender situación familiar urgente. Mi padre requiere acompañamiento médico.',status:'aprobado_supervisor',etapa:'rh',prioridad:'media'},
+  {id:4,emp:'Gabriela Romero',area:'IT Support',tipo:'Médico',subtipo:'Maternidad',dias:84,inicio:'2026-06-01',motivo:'Permiso de maternidad conforme a la Ley Federal del Trabajo, Art. 170.',status:'pendiente',etapa:'supervisor',prioridad:'alta'},
+  {id:5,emp:'Carlos Salas',area:'IT Support',tipo:'Personal',subtipo:'Trámites legales',dias:2,inicio:'2026-05-08',motivo:'Trámites notariales que requieren presencia física en horario de oficina.',status:'denegado',etapa:'cerrado',prioridad:'baja'},
+  {id:6,emp:'Laura Mendoza',area:'Networking',tipo:'Médico',subtipo:'Cuidado de hijos',dias:4,inicio:'2026-05-14',motivo:'Mi hijo menor requiere hospitalización y cuidados. Solicito permiso por incapacidad familiar.',status:'aprobado',etapa:'cerrado',prioridad:'media'},
+];
+let miSolicitud=null;
+let areaFiltro='all', riesgoFiltro='all';
+
+let datosKPIs = {
+  capacidad: 39,
+  activos: 39,
+  total: 100,
+  asistencia: 86.8,
+  enRiesgo: 14,
+  areaCritica: 'IT',
+  areaCriticaPct: 78.7
+};
+
+async function cargarKPIs() {
+  try {
+    const respuesta = await fetch('https://dashboard-asistencia-api.onrender.com/api/asistencia');
+    const datos = await respuesta.json();
+    
+    // Mapeamos los datos de la API a nuestra estructura
+    datosKPIs = {
+      capacidad: Math.round((datos.total_empleados - datos.empleados_bajo_60) / datos.total_empleados * 100),
+      activos: datos.total_empleados - datos.empleados_bajo_60,
+      total: datos.total_empleados,
+      asistencia: datos.asistencia_promedio,
+      enRiesgo: datos.empleados_bajo_60,
+      areaCritica: datos.area_critica.split(' ')[0], // "IT" de "IT Support"
+      areaCriticaPct: 78.7 // Por ahora hardcodeado, luego vendrá de la API
+    };
+    
+    console.log('KPIs cargados desde API:', datosKPIs);
+  } catch (error) {
+    console.error('Error al cargar KPIs, usando valores por defecto:', error);
+  }
+}
+
+const AREAS=[
+  {name:'IT Support',pct:78.7,bajo60:6,activos:8,color:'#f43f5e'},
+  {name:'Networking',pct:87.0,bajo60:2,activos:10,color:'#3b82f6'},
+  {name:'DevOps',pct:91.1,bajo60:4,activos:11,color:'#10b981'},
+  {name:'Security',pct:91.4,bajo60:2,activos:10,color:'#10b981'},
+];
+const RIESGO=[
+  {n:'Diego Romero',a:'IT Support',pct:40.9,est:'Activo',r:'critico',vac:15,perm:6,tipo:'Médico — Enfermedad'},
+  {n:'Gabriela Romero',a:'IT Support',pct:45.5,est:'Activo',r:'critico',vac:10,perm:7,tipo:'Médico — Maternidad'},
+  {n:'Mariana Salas',a:'DevOps',pct:45.5,est:'Activo',r:'critico',vac:0,perm:3,tipo:'No registrado'},
+  {n:'Carlos Salas',a:'IT Support',pct:45.5,est:'Permiso',r:'alto',vac:8,perm:5,tipo:'Personal — Trámites'},
+  {n:'Ana Salas',a:'IT Support',pct:50.0,est:'Vacaciones',r:'alto',vac:15,perm:5,tipo:'Vacaciones acumuladas'},
+  {n:'Juan Diaz',a:'Security',pct:50.0,est:'Vacaciones',r:'alto',vac:16,perm:6,tipo:'Vacaciones anuales'},
+  {n:'Laura Mendoza',a:'Networking',pct:54.5,est:'Permiso',r:'alto',vac:2,perm:6,tipo:'Médico — Hijos'},
+  {n:'Hugo Vega',a:'DevOps',pct:59.1,est:'Permiso',r:'moderado',vac:5,perm:3,tipo:'Personal — Familiar'},
+  {n:'Diego Ruiz',a:'DevOps',pct:59.1,est:'Permiso',r:'moderado',vac:11,perm:2,tipo:'Personal'},
+];
+
+// ── UTILS ─────────────────────────────────────────────────────────────────────
+const rc=r=>r==='critico'?'var(--red)':r==='alto'?'var(--amber)':'var(--blue)';
+const now=()=>{const d=new Date();return `${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}`};
+
+const statusPill=s=>{
+  if(s==='pendiente') return `<span class="pill" style="background:var(--amb-dim);color:var(--amber)">⏳ Pendiente</span>`;
+  if(s==='aprobado_supervisor') return `<span class="pill" style="background:var(--blu-dim);color:var(--blue)">✓ Sup. → RH pendiente</span>`;
+  if(s==='aprobado') return `<span class="pill" style="background:var(--grn-dim);color:var(--green)">✓ Aprobado</span>`;
+  return `<span class="pill" style="background:var(--red-dim);color:var(--red)">✗ Denegado</span>`;
+};
+
+function notify(msg,color='var(--green)'){
+  const n=document.getElementById('notif');
+  n.innerHTML=msg; n.style.borderLeftColor=color;
+  n.classList.add('show');
+  setTimeout(()=>n.classList.remove('show'),3500);
+}
+
+function openModal(title,sub,body,actions){
+  document.getElementById('mt').textContent=title;
+  document.getElementById('ms').textContent=sub;
+  document.getElementById('mb').innerHTML=body;
+  document.getElementById('ma').innerHTML=actions;
+  document.getElementById('modal').classList.add('open');
+}
+function closeModal(){document.getElementById('modal').classList.remove('open')}
+
+function logAction(icon,text,sub,color){
+  actionLog.unshift({icon,text,sub,color,time:now()});
+  if(actionLog.length>8) actionLog.pop();
+}
+
+// ── AUTH ──────────────────────────────────────────────────────────────────────
+function selectRole(r,el){
+  role=r;
+  document.querySelectorAll('.role-btn').forEach(b=>b.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('login-btn').disabled=false;
+}
+async function doLogin(){
+  if(!role){
+    notify('⚠ Selecciona un perfil para continuar','var(--red)');
+    return;
+  }
+  document.getElementById('login-screen').classList.add('hidden');
+  document.getElementById('app').classList.remove('hidden');
+  const cfg={ceo:['CEO','#8b5cf6','var(--pur-dim)'],rh:['RH','#10b981','var(--grn-dim)'],supervisor:['Supervisor IT','#3b82f6','var(--blu-dim)'],empleado:['Empleado','#f59e0b','var(--amb-dim)']};
+  const [label,color,bg]=cfg[role];
+  const b=document.getElementById('rbadge');
+  b.textContent=label; b.style.color=color; b.style.background=bg; b.style.padding='4px 10px'; b.style.borderRadius='20px';
+  document.getElementById('hsub').textContent=`${label} · Departamento IT · Abril 2026`;
+  await cargarKPIs();
+  buildNav(); renderTab(0);
+}
+function logout(){
+  role=null; tab=0; actionLog=[];
+  document.getElementById('app').classList.add('hidden');
+  document.getElementById('login-screen').classList.remove('hidden');
+  document.querySelectorAll('.role-btn').forEach(b=>b.classList.remove('selected'));
+  document.getElementById('login-btn').disabled=true;
+}
+
+// ── NAV ───────────────────────────────────────────────────────────────────────
+const TABS={
+  ceo:['📊 Resumen','🔍 Drill-down áreas','📅 Predicción 60 días'],
+  rh:['📊 General','👥 Colaboradores','📋 Solicitudes','📅 Predicción','🕐 Historial'],
+  supervisor:['📊 Mi Área','👥 Mi Equipo','📋 Aprobaciones','📅 Cobertura'],
+  empleado:['👤 Mi Perfil','📝 Solicitar Permiso','📋 Mis Solicitudes'],
+};
+
+function pendingSup(){return solicitudes.filter(s=>s.status==='pendiente'&&s.etapa==='supervisor').length}
+function pendingRH(){return solicitudes.filter(s=>s.status==='pendiente'||s.status==='aprobado_supervisor').length}
+
+function buildNav(){
+  const tabs=TABS[role];
+  if(!tabs){ return; }
+  document.getElementById('nav').innerHTML=tabs.map((t,i)=>{
+    let badge='';
+    if(role==='supervisor'&&i===2&&pendingSup()>0) badge=`<span class="pending-badge">${pendingSup()}</span>`;
+    if(role==='rh'&&i===2&&pendingRH()>0) badge=`<span class="pending-badge">${pendingRH()}</span>`;
+    return `<div class="nav-tab ${i===0?'active':''}" onclick="renderTab(${i})">${t}${badge}</div>`;
+  }).join('');
+}
+
+function renderTab(i){
+  tab=i;
+  document.querySelectorAll('.nav-tab').forEach((t,j)=>t.classList.toggle('active',j===i));
+  const renders={
+    ceo:[renderCEOResumen,renderCEODrill,renderCEOPrediccion],
+    rh:[renderRHGeneral,renderRHColaboradores,renderRHSolicitudes,renderRHPrediccion,renderRHHistorial],
+    supervisor:[renderSupArea,renderSupEquipo,renderSupAprobaciones,renderSupCobertura],
+    empleado:[renderEmpPerfil,renderEmpSolicitar,renderEmpMisSolicitudes],
+  };
+  const fn=renders[role] && renders[role][i];
+  if(typeof fn!=='function'){ return; }
+  fn();
+}
+
+// ══ CEO ═══════════════════════════════════════════════════════════════════════
+function renderCEOResumen(){
+  document.getElementById('content').innerHTML=`
+  <div class="narrative"><strong>📖 Resumen ejecutivo:</strong> El departamento IT opera al <strong>39% de capacidad</strong>. IT Support concentra el mayor riesgo con 78.7% de asistencia. <strong>3 empleados activos sin justificación de ausentismo</strong> requieren atención esta semana.</div>
+  <div class="kpi-grid">
+    <div class="card"><div class="kpi-label">Capacidad operativa</div><div class="kpi-val" style="color:var(--amber)">${datosKPIs.capacidad}%</div><div class="kpi-sub">${datosKPIs.activos} de ${datosKPIs.total} activos</div><div class="mini-progress"><div class="mini-fill" style="width:${datosKPIs.capacidad}%;background:var(--amber)"></div></div></div>
+    <div class="card"><div class="kpi-label">Asistencia promedio</div><div class="kpi-val" style="color:var(--green)">${datosKPIs.asistencia}%</div><div class="kpi-sub">Sobre mínimo 60%</div><div class="mini-progress"><div class="mini-fill" style="width:${datosKPIs.asistencia}%;background:var(--green)"></div></div></div>
+    <div class="card"><div class="kpi-label">En riesgo</div><div class="kpi-val" style="color:var(--red)">${datosKPIs.enRiesgo}</div><div class="kpi-sub">bajo 60% — clic para ver</div><div class="mini-progress"><div class="mini-fill" style="width:${datosKPIs.enRiesgo}%;background:var(--red)"></div></div></div>
+    <div class="card"><div class="kpi-label">Área crítica</div><div class="kpi-val" style="color:var(--red)">${datosKPIs.areaCritica}</div><div class="kpi-sub">${datosKPIs.areaCriticaPct}% promedio</div></div>
+  </div>
+  <div class="kpi-grid-2">
+    <div class="card">
+      <div class="card-title">Asistencia por área <span style="font-size:10px;color:var(--muted)">clic para drill-down</span></div>
+      ${AREAS.map(a=>`
+      <div class="area-row" onclick="renderTab(1)">
+        <div class="area-name">${a.name}</div>
+        <div class="area-track" title="Ver detalle">
+          <div class="ref-line"><div class="ref-label">60%</div></div>
+          <div class="area-fill" style="width:${a.pct}%;background:${a.color}22;border:1px solid ${a.color}44;color:${a.color}">${a.pct}%</div>
+        </div>
+        <div style="width:36px;text-align:right;font-size:11px;color:${a.color}">${a.bajo60}↓</div>
+      </div>`).join('')}
+      <div style="font-size:10px;color:var(--muted);margin-top:6px">↓ empleados bajo 60% · Haz clic en cualquier barra para ver detalle</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Estado del personal</div>
+      ${[['Activos hoy','39','var(--green)',39],['En permiso','37','var(--amber)',37],['En vacaciones','24','var(--blue)',24]].map(([l,v,c,w])=>`
+      <div style="margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
+          <span style="color:var(--muted)">${l}</span>
+          <span style="color:${c};font-weight:600">${v}</span>
+        </div>
+        <div class="mini-progress" style="height:5px"><div class="mini-fill" style="width:${w}%;background:${c};height:5px"></div></div>
+      </div>`).join('')}
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Plan de acción estratégico</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+      ${[['⚡ Esta semana','var(--red)','Contactar 3 empleados activos con ausentismo sin justificación registrada.'],['📅 Este mes','var(--amber)','Planificar vacaciones de Ana Salas (15 días, vencen 19 mayo) en IT Support.'],['🔭 Q3 2026','var(--blue)','Implementar campo Tipo_Permiso y cruzar asistencia con SLA para medir impacto real.']].map(([t,c,d])=>`
+      <div style="background:var(--bg3);border-radius:8px;padding:10px 12px;border-left:3px solid ${c}">
+        <div style="font-size:11px;font-weight:500;color:${c};margin-bottom:4px">${t}</div>
+        <div style="font-size:12px;color:var(--muted2);line-height:1.5">${d}</div>
+      </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+function renderCEODrill(){
+  document.getElementById('content').innerHTML=`
+  <div class="narrative"><strong>🔍 Drill-down por área:</strong> Vista agregada sin datos individuales. Para datos de empleados específicos, RH tiene acceso completo. Haz clic en cualquier área para ver el resumen.</div>
+  <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px">
+    ${AREAS.map(a=>`
+    <div class="card" style="cursor:pointer;border-color:${a.color}33" onclick="drillArea('${a.name}',${a.pct},${a.bajo60},${a.activos},'${a.color}')">
+      <div class="card-title">${a.name} <span class="card-tag" style="background:${a.color}22;color:${a.color}">${a.pct}%</span></div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px">
+        <div style="text-align:center"><div style="font-size:20px;font-weight:600;color:${a.color}">${a.activos}</div><div style="font-size:10px;color:var(--muted)">Activos</div></div>
+        <div style="text-align:center"><div style="font-size:20px;font-weight:600;color:var(--red)">${a.bajo60}</div><div style="font-size:10px;color:var(--muted)">Bajo 60%</div></div>
+        <div style="text-align:center"><div style="font-size:20px;font-weight:600;color:var(--muted)">${25-a.activos-a.bajo60}</div><div style="font-size:10px;color:var(--muted)">Permisos</div></div>
+      </div>
+      <div style="height:6px;background:var(--bg3);border-radius:3px">
+        <div style="width:${a.pct}%;height:6px;border-radius:3px;background:${a.color}"></div>
+      </div>
+      <div style="font-size:10px;color:var(--muted);margin-top:5px;text-align:right">Clic para detalle agregado →</div>
+    </div>`).join('')}
+  </div>`;
+}
+
+function drillArea(name,pct,bajo60,activos,color){
+  openModal(
+    `${name} — Resumen agregado`,
+    'Vista ejecutiva sin datos individuales',
+    `<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px">
+      <div style="background:var(--bg3);border-radius:8px;padding:12px;text-align:center"><div style="font-size:24px;font-weight:700;color:${color}">${pct}%</div><div style="font-size:11px;color:var(--muted)">Asistencia promedio</div></div>
+      <div style="background:var(--bg3);border-radius:8px;padding:12px;text-align:center"><div style="font-size:24px;font-weight:700;color:var(--red)">${bajo60}</div><div style="font-size:11px;color:var(--muted)">Bajo el 60%</div></div>
+    </div>
+    <div style="background:var(--amb-dim);border-radius:8px;padding:10px 12px;font-size:12px;color:var(--amber);line-height:1.6">
+      Para ver nombres e información individual de colaboradores, contacta a Recursos Humanos. El acceso CEO mantiene privacidad de datos por empleado.
+    </div>`,
+    `<button class="btn btn-ghost" onclick="closeModal()">Cerrar</button>`
+  );
+}
+
+function renderCEOPrediccion(){prediccionBase()}
+
+// ══ RH ════════════════════════════════════════════════════════════════════════
+function renderRHGeneral(){
+  document.getElementById('content').innerHTML=`
+  <div class="narrative"><strong>RH — Gestión completa:</strong> Tienes acceso a datos individuales, tipos de permiso y flujo de aprobaciones. <strong>${pendingRH()} solicitudes</strong> requieren tu atención. Revisa la alerta de calidad de datos antes de tomar decisiones de nómina.</div>
+  <div class="kpi-grid">
+    <div class="card"><div class="kpi-label">Total empleados</div><div class="kpi-val">100</div><div class="kpi-sub">4 áreas · 1 mes</div></div>
+    <div class="card"><div class="kpi-label">Bajo 60%</div><div class="kpi-val" style="color:var(--red)">14</div><div class="kpi-sub">Requieren seguimiento</div></div>
+    <div class="card"><div class="kpi-label">Solicitudes pendientes</div><div class="kpi-val" style="color:var(--amber)">${pendingRH()}</div><div class="kpi-sub">Esperando resolución</div></div>
+    <div class="card"><div class="kpi-label">Vac. por vencer</div><div class="kpi-val" style="color:var(--red)">4</div><div class="kpi-sub">Antes del 20 mayo</div></div>
+  </div>
+  <div class="card">
+    <div class="card-title">⚠ Alerta de calidad de datos — leer antes de actuar</div>
+    <div style="background:var(--amb-dim);border:1px solid rgba(245,158,11,0.25);border-radius:8px;padding:12px;font-size:12px;color:var(--muted2);line-height:1.7">
+      <strong style="color:var(--amber)">Anomalía detectada:</strong> 51 de 100 empleados tienen suma de Dias_Asistidos + Dias_Remotos + Dias_Permiso mayor a 22 días laborables. Posible doble conteo entre modalidades de trabajo. <strong style="color:var(--text)">No usar para cálculos de nómina o sanciones sin aclarar la definición de variables con sistemas.</strong><br><br>
+      <strong style="color:var(--text)">Columnas faltantes:</strong> Tipo_Permiso, historial mensual, métricas SLA, ubicación de oficina.
+    </div>
+  </div>`;
+}
+
+function renderRHColaboradores(){
+  const areas=['all','IT Support','Networking','DevOps','Security'];
+  const riesgos=['all','critico','alto','moderado'];
+  let data=RIESGO.filter(d=>(areaFiltro==='all'||d.a===areaFiltro)&&(riesgoFiltro==='all'||d.r===riesgoFiltro));
+  document.getElementById('content').innerHTML=`
+  <div class="filter-bar">
+    <span class="filter-label">Área:</span>
+    ${areas.map(a=>`<button class="filter-btn ${areaFiltro===a?'active':''}" onclick="areaFiltro='${a}';renderRHColaboradores()">${a==='all'?'Todas':a}</button>`).join('')}
+    <span class="filter-label" style="margin-left:8px">Riesgo:</span>
+    ${riesgos.map(r=>`<button class="filter-btn ${riesgoFiltro===r?'active':''}" onclick="riesgoFiltro='${r}';renderRHColaboradores()">${r==='all'?'Todos':r}</button>`).join('')}
+  </div>
+  <div class="card">
+    <div class="card-title">Colaboradores en riesgo <span class="card-tag" style="background:var(--red-dim);color:var(--red)">${data.length} resultados</span></div>
+    <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Nombre</th><th>Área</th><th>% Asist.</th><th>Estatus</th><th>Tipo permiso</th><th>Días perm.</th><th>Vac. disp.</th><th>Riesgo</th><th>Acción</th></tr></thead>
+      <tbody>${data.map(d=>`<tr>
+        <td style="font-weight:500">${d.n}</td>
+        <td>${d.a}</td>
+        <td style="color:${rc(d.r)};font-family:monospace;font-weight:600">${d.pct}%</td>
+        <td><span class="pill" style="background:${d.est==='Activo'?'var(--red-dim)':d.est==='Permiso'?'var(--amb-dim)':'var(--blu-dim)'};color:${d.est==='Activo'?'var(--red)':d.est==='Permiso'?'var(--amber)':'var(--blue)'}">${d.est}</span></td>
+        <td style="font-size:11px;color:var(--muted2)">${d.tipo}</td>
+        <td style="font-family:monospace;text-align:center">${d.perm}</td>
+        <td style="font-family:monospace;text-align:center">${d.vac}</td>
+        <td><span class="pill" style="background:${d.r==='critico'?'var(--red-dim)':d.r==='alto'?'var(--amb-dim)':'var(--blu-dim)'};color:${rc(d.r)}">${d.r}</span></td>
+        <td><button class="btn btn-ghost" style="font-size:11px" onclick="contactar('${d.n}')">Contactar</button></td>
+      </tr>`).join('')}
+      ${data.length===0?`<tr><td colspan="9" style="text-align:center;padding:20px;color:var(--muted)">Sin resultados para los filtros seleccionados</td></tr>`:''}
+      </tbody>
+    </table>
+    </div>
+  </div>`;
+}
+
+function contactar(nombre){
+  notify(`📧 Notificación enviada a ${nombre}`, 'var(--blue)');
+  logAction('📧',`Contacto enviado a ${nombre}`,'Seguimiento de asistencia','var(--blue)');
+}
+
+function renderRHSolicitudes(){renderSolicitudes('rh')}
+
+function renderSolicitudes(rolVista){
+  const esPendienteParaMi = s => rolVista==='rh'
+    ? (s.status==='pendiente'&&s.etapa==='supervisor')||(s.status==='aprobado_supervisor'&&s.etapa==='rh')
+    : s.status==='pendiente'&&s.etapa==='supervisor';
+
+  const pendientes=solicitudes.filter(s=>esPendienteParaMi(s));
+  const resueltas=solicitudes.filter(s=>!esPendienteParaMi(s));
+
+  document.getElementById('content').innerHTML=`
+  ${rolVista==='supervisor'?`
+  <div class="card" style="background:var(--blu-dim);border-color:rgba(59,130,246,0.25);margin-bottom:12px">
+    <div class="flow">
+      <div class="flow-step" style="background:var(--amb-dim);color:var(--amber)">👤 Empleado<br><span style="font-weight:400;font-size:10px">Solicita</span></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step" style="background:var(--blue);color:#fff">🖥️ Supervisor<br><span style="font-weight:400;font-size:10px">1ª aprobación</span></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step" style="background:var(--bg3);color:var(--muted)">👥 RH<br><span style="font-weight:400;font-size:10px">Validación final</span></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step" style="background:var(--grn-dim);color:var(--green)">✓ Aprobado<br><span style="font-weight:400;font-size:10px">o denegado</span></div>
+    </div>
+    <div style="font-size:11px;color:var(--blue)">Tu aprobación pasa la solicitud a RH para validación final. Tu denegación la cierra directamente.</div>
+  </div>`:''}
+  <div class="card">
+    <div class="card-title">${rolVista==='supervisor'?'Pendientes de tu aprobación':'Pendientes de resolución'} <span class="card-tag" style="background:var(--amb-dim);color:var(--amber)">${pendientes.length}</span></div>
+    ${pendientes.length===0?`<div style="text-align:center;padding:20px;color:var(--muted)">✓ No hay solicitudes pendientes para ti en este momento.</div>`
+    :pendientes.map(s=>`
+    <div class="sol-item">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:6px">
+        <div>
+          <div class="sol-name">${s.emp} <span style="font-size:11px;font-weight:400;color:${s.prioridad==='alta'?'var(--red)':s.prioridad==='media'?'var(--amber)':'var(--muted)'}">${s.prioridad==='alta'?'⬆ alta':s.prioridad==='media'?'→ media':'⬇ baja'}</span></div>
+          <div class="sol-meta">${s.area} · ${s.tipo} — ${s.subtipo} · ${s.dias} días desde ${s.inicio}</div>
+          ${s.status==='aprobado_supervisor'?`<div style="font-size:10px;color:var(--blue);margin-top:2px">✓ Aprobado por Supervisor · Pendiente validación RH</div>`:''}
+        </div>
+        ${statusPill(s.status)}
+      </div>
+      <div class="sol-body">"${s.motivo}"</div>
+      <div class="sol-actions">
+        <button class="btn btn-green" onclick="resolver(${s.id},'aprobado','${rolVista}')">✓ ${rolVista==='supervisor'?'Aprobar y enviar a RH':'Aprobar definitivo'}</button>
+        <button class="btn btn-red" onclick="resolver(${s.id},'denegado','${rolVista}')">✗ Denegar</button>
+        <button class="btn btn-blue" onclick="pedirInfo('${s.emp}')">💬 Pedir info</button>
+      </div>
+    </div>`).join('')}
+  </div>
+  <div class="card">
+    <div class="card-title">Historial de solicitudes resueltas <span class="card-tag" style="background:var(--grn-dim);color:var(--green)">${resueltas.length}</span></div>
+    ${resueltas.map(s=>`
+    <div class="sol-item" style="opacity:.7">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div><div class="sol-name" style="font-size:12px">${s.emp}</div><div class="sol-meta">${s.area} · ${s.tipo} · ${s.dias} días</div></div>
+        ${statusPill(s.status)}
+      </div>
+    </div>`).join('')}
+  </div>`;
+}
+
+function resolver(id, accion, rolVista){
+  const s=solicitudes.find(x=>x.id===id);
+  openModal(
+    `${accion==='aprobado'?'Aprobar':'Denegar'} permiso de ${s.emp}`,
+    `${s.tipo} — ${s.subtipo} · ${s.dias} días`,
+    `<div style="font-size:12px;color:var(--muted2);margin-bottom:14px;padding:10px;background:var(--bg3);border-radius:8px;line-height:1.6">"${s.motivo}"</div>
+    ${rolVista==='supervisor'&&accion==='aprobado'?`<div style="font-size:11px;color:var(--blue);margin-bottom:12px;padding:8px 10px;background:var(--blu-dim);border-radius:6px">Tu aprobación enviará esta solicitud a RH para validación final antes de confirmar.</div>`:''}
+    <div class="form-group"><label class="form-label">Comentario para el empleado</label><textarea class="form-textarea" id="com-modal" placeholder="Agrega una nota explicativa (opcional)..."></textarea></div>`,
+    `<button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+     <button class="btn ${accion==='aprobado'?'btn-green':'btn-red'}" onclick="confirmar(${id},'${accion}','${rolVista}')">${accion==='aprobado'?'✓ Confirmar':'✗ Confirmar denegación'}</button>`
+  );
+}
+
+function confirmar(id, accion, rolVista){
+  const s=solicitudes.find(x=>x.id===id);
+  if(accion==='aprobado'&&rolVista==='supervisor'){
+    s.status='aprobado_supervisor'; s.etapa='rh';
+    logAction('✓',`Permiso de ${s.emp} aprobado por Supervisor`,`Enviado a RH · ${s.tipo}`,'var(--blue)');
+    notify(`✓ Aprobación enviada a RH para validación final de ${s.emp}`, 'var(--blue)');
+  } else {
+    s.status=accion; s.etapa='cerrado';
+    logAction(accion==='aprobado'?'✓':'✗',`Permiso de ${s.emp} ${accion}`,`${s.tipo} · ${s.dias} días`,accion==='aprobado'?'var(--green)':'var(--red)');
+    notify(`${accion==='aprobado'?'✓ Permiso aprobado':'✗ Permiso denegado'} — ${s.emp}`, accion==='aprobado'?'var(--green)':'var(--red)');
+  }
+  closeModal();
+  buildNav();
+  renderTab(tab);
+}
+
+function pedirInfo(nombre){
+  notify(`💬 Solicitud de información enviada a ${nombre}`, 'var(--blue)');
+  logAction('💬',`Info solicitada a ${nombre}`,'Pendiente respuesta','var(--blue)');
+}
+
+function renderRHPrediccion(){prediccionBase()}
+
+function renderRHHistorial(){
+  document.getElementById('content').innerHTML=`
+  <div class="card">
+    <div class="card-title">Historial de acciones de esta sesión <span class="card-tag" style="background:var(--acc-dim);color:#a5b4fc">${actionLog.length} acciones</span></div>
+    ${actionLog.length===0?`<div style="text-align:center;padding:30px;color:var(--muted)">No hay acciones registradas en esta sesión todavía.</div>`
+    :actionLog.map(a=>`
+    <div class="action-log">
+      <div class="action-icon">${a.icon}</div>
+      <div style="flex:1">
+        <div class="action-text">${a.text}</div>
+        <div class="action-sub">${a.sub}</div>
+      </div>
+      <div class="action-time">${a.time}</div>
+    </div>`).join('')}
+  </div>
+  <div class="card">
+    <div class="card-title">Resumen de solicitudes — estado actual</div>
+    ${[['Pendientes (empleado→supervisor)',solicitudes.filter(s=>s.status==='pendiente'&&s.etapa==='supervisor').length,'var(--amber)'],['Aprobadas por supervisor (→RH)',solicitudes.filter(s=>s.status==='aprobado_supervisor').length,'var(--blue)'],['Aprobadas definitivas',solicitudes.filter(s=>s.status==='aprobado'&&s.etapa==='cerrado').length,'var(--green)'],['Denegadas',solicitudes.filter(s=>s.status==='denegado').length,'var(--red)']].map(([l,v,c])=>`
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)">
+      <span style="font-size:12px;color:var(--muted2)">${l}</span>
+      <span style="font-size:16px;font-weight:600;color:${c};font-family:monospace">${v}</span>
+    </div>`).join('')}
+  </div>`;
+}
+
+// ══ SUPERVISOR ════════════════════════════════════════════════════════════════
+function renderSupArea(){
+  document.getElementById('content').innerHTML=`
+  <div class="narrative"><strong>IT Support — Tu área:</strong> Con 78.7% de asistencia promedio estás <strong>13 puntos por debajo</strong> del departamento. Tienes <strong>${pendingSup()} solicitudes</strong> esperando tu primera aprobación.</div>
+  <div class="kpi-grid-3">
+    <div class="card"><div class="kpi-label">Asistencia IT Support</div><div class="kpi-val" style="color:var(--red)">78.7%</div><div class="kpi-sub">Promedio · mín. 60%</div><div class="mini-progress"><div class="mini-fill" style="width:78.7%;background:var(--red)"></div></div></div>
+    <div class="card"><div class="kpi-label">Activos hoy</div><div class="kpi-val" style="color:var(--amber)">8</div><div class="kpi-sub">de 25 en tu equipo</div></div>
+    <div class="card"><div class="kpi-label">Aprobaciones pendientes</div><div class="kpi-val" style="color:var(--red)">${pendingSup()}</div><div class="kpi-sub">Esperan tu decisión</div></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Tu equipo en riesgo — IT Support</div>
+    ${RIESGO.filter(r=>r.a==='IT Support').map(d=>`
+    <div class="risk-item">
+      <div class="risk-dot" style="background:${rc(d.r)}"></div>
+      <div style="flex:1">
+        <div style="display:flex;justify-content:space-between"><span style="font-size:12px;font-weight:500">${d.n}</span><span style="font-size:12px;font-family:monospace;color:${rc(d.r)}">${d.pct}%</span></div>
+        <div style="height:4px;background:var(--bg);border-radius:2px;margin-top:4px"><div style="width:${d.pct}%;height:4px;border-radius:2px;background:${rc(d.r)}"></div></div>
+        <div style="font-size:10px;color:var(--muted);margin-top:2px">${d.tipo} · ${d.est}</div>
+      </div>
+      <span class="pill" style="background:${d.r==='critico'?'var(--red-dim)':'var(--amb-dim)'};color:${rc(d.r)}">${d.r}</span>
+    </div>`).join('')}
+  </div>`;
+}
+
+function renderSupEquipo(){
+  document.getElementById('content').innerHTML=`
+  <div class="card">
+    <div class="card-title">Equipo completo IT Support</div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Nombre</th><th>% Asistencia</th><th>Estatus</th><th>Tipo permiso</th><th>Vac. disp.</th><th>Riesgo</th></tr></thead>
+      <tbody>${RIESGO.filter(r=>r.a==='IT Support').map(d=>`<tr>
+        <td style="font-weight:500">${d.n}</td>
+        <td><div style="display:flex;align-items:center;gap:6px">
+          <div style="width:55px;height:4px;background:var(--bg3);border-radius:2px"><div style="width:${d.pct}%;height:4px;border-radius:2px;background:${rc(d.r)}"></div></div>
+          <span style="font-family:monospace;color:${rc(d.r)}">${d.pct}%</span>
+        </div></td>
+        <td><span class="pill" style="background:${d.est==='Activo'?'var(--red-dim)':d.est==='Permiso'?'var(--amb-dim)':'var(--blu-dim)'};color:${d.est==='Activo'?'var(--red)':d.est==='Permiso'?'var(--amber)':'var(--blue)'}">${d.est}</span></td>
+        <td style="font-size:11px;color:var(--muted2)">${d.tipo}</td>
+        <td style="font-family:monospace;text-align:center">${d.vac}</td>
+        <td><span class="pill" style="background:${d.r==='critico'?'var(--red-dim)':'var(--amb-dim)'};color:${rc(d.r)}">${d.r}</span></td>
+      </tr>`).join('')}</tbody>
+    </table></div>
+  </div>`;
+}
+
+function renderSupAprobaciones(){renderSolicitudes('supervisor')}
+
+function renderSupCobertura(){
+  document.getElementById('content').innerHTML=`
+  <div class="narrative"><strong>📅 IT Support — próximas 4 semanas:</strong> La semana del 19 mayo es el punto más crítico. Ana Salas (15 días de vacaciones) suma su ausencia al equipo ya reducido.</div>
+  <div class="card">
+    <div class="card-title">Proyección de disponibilidad semanal</div>
+    ${[['12–16 may',8,25,'var(--amber)'],['19–23 may',6,25,'var(--red)'],['26–30 may',9,25,'var(--amber)'],['2–6 jun',11,25,'var(--green)']].map(([w,a,t,c])=>`
+    <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)">
+      <div style="width:80px;font-size:11px;color:var(--muted)">${w}</div>
+      <div style="flex:1;height:26px;background:var(--bg3);border-radius:6px;overflow:hidden">
+        <div style="width:${(a/t)*100}%;height:100%;background:${c};display:flex;align-items:center;padding-left:8px;font-size:11px;font-weight:500;color:#fff">${a} activos</div>
+      </div>
+      <div style="font-size:12px;color:${c};width:40px;text-align:right;font-weight:600">${Math.round((a/t)*100)}%</div>
+    </div>`).join('')}
+    <div style="font-size:10px;color:var(--muted);margin-top:8px">Mínimo recomendado para SLA: 12 activos (48%). Semana 19 mayo en riesgo crítico.</div>
+  </div>`;
+}
+
+// ══ EMPLEADO ══════════════════════════════════════════════════════════════════
+function renderEmpPerfil(){
+  document.getElementById('content').innerHTML=`
+  <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px">
+    <div style="width:48px;height:48px;border-radius:12px;background:var(--acc-dim);display:flex;align-items:center;justify-content:center;font-size:22px">👤</div>
+    <div><div style="font-size:16px;font-weight:600">Mi perfil — IT Support</div><div style="font-size:12px;color:var(--muted)">Empleado activo · Abril 2026</div></div>
+  </div>
+  <div class="stat-row">
+    <div class="stat-box"><div class="stat-val" style="color:var(--green)">82%</div><div class="stat-lbl">Mi asistencia</div></div>
+    <div class="stat-box"><div class="stat-val" style="color:var(--blue)">18</div><div class="stat-lbl">Días asistidos</div></div>
+    <div class="stat-box"><div class="stat-val" style="color:var(--amber)">4</div><div class="stat-lbl">Vac. disponibles</div></div>
+    <div class="stat-box"><div class="stat-val" style="color:var(--muted)">2</div><div class="stat-lbl">Permisos usados</div></div>
+  </div>
+  <div class="card" style="background:var(--grn-dim);border-color:rgba(16,185,129,0.2);margin-bottom:10px">
+    <div style="font-size:12px;color:var(--green);line-height:1.6">✓ Tu asistencia está por encima del mínimo requerido (60%). Tienes 4 días de vacaciones disponibles — recuerda planificarlas con anticipación para evitar que venzan.</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Historial de permisos</div>
+    <div class="tl">
+      ${[['2026-04-03','Permiso médico — Enfermedad propia','Aprobado · 2 días','var(--green)'],['2026-03-15','Permiso personal — Trámites','Aprobado · 1 día','var(--green)'],['2026-02-20','Vacaciones anuales','Aprobado · 5 días','var(--blue)']].map(([f,t,s,c])=>`
+      <div class="tl-item"><div class="tl-dot" style="background:${c}"></div><div class="tl-line"></div>
+        <div class="tl-title">${t}</div><div class="tl-sub">${f} · ${s}</div>
+      </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+function renderEmpSolicitar(){
+  document.getElementById('content').innerHTML=`
+  <div class="card">
+    <div class="card-title">Nueva solicitud de permiso</div>
+    <div class="form-group">
+      <label class="form-label">Tipo de permiso</label>
+      <select class="form-select" id="tipo" onchange="updateSubtipo()">
+        <option value="">Selecciona un tipo...</option>
+        <option>Médico</option><option>Vacaciones</option><option>Personal</option><option>Maternidad/Paternidad</option><option>Sindical</option>
+      </select>
+    </div>
+    <div class="form-group hidden" id="subtipo-g">
+      <label class="form-label">Subtipo</label>
+      <select class="form-select" id="subtipo"></select>
+    </div>
+    <div class="form-grid">
+      <div class="form-group"><label class="form-label">Fecha de inicio</label><input type="date" class="form-input" id="fecha-i" min="2026-05-01"></div>
+      <div class="form-group"><label class="form-label">Número de días</label><input type="number" class="form-input" id="ndias" min="1" max="90" placeholder="Ej. 3"></div>
+    </div>
+    <div class="form-group"><label class="form-label">Justificación y motivo</label><textarea class="form-textarea" id="motivo" placeholder="Describe el motivo con el mayor detalle posible. Para permisos médicos puedes adjuntar constancia por correo."></textarea></div>
+    <div style="background:var(--amb-dim);border:1px solid rgba(245,158,11,0.2);border-radius:8px;padding:10px 12px;font-size:11px;color:var(--amber);margin-bottom:14px;line-height:1.6">
+      ⚠ Flujo de aprobación: Tu solicitud llega primero a tu Supervisor, quien la envía a RH para validación final. Recibirás notificación en cada etapa. Para permisos médicos de más de 3 días, la incapacidad IMSS no afecta tu registro de asistencia.
+    </div>
+    <button class="btn btn-accent" style="width:100%;padding:10px" onclick="enviarSolicitud()">Enviar solicitud al supervisor</button>
+  </div>`;
+}
+
+function updateSubtipo(){
+  const t=document.getElementById('tipo').value;
+  const map={'Médico':['Enfermedad propia','Cita médica','Hospitalización familiar','Cuidado de hijos'],'Vacaciones':['Vacaciones anuales','Vacaciones acumuladas'],'Personal':['Trámites legales','Asuntos familiares','Mudanza','Otro'],'Maternidad/Paternidad':['Maternidad (84 días)','Paternidad (5 días)'],'Sindical':['Representación sindical','Congreso','Otro']};
+  const g=document.getElementById('subtipo-g');
+  if(t&&map[t]){g.classList.remove('hidden');document.getElementById('subtipo').innerHTML=map[t].map(s=>`<option>${s}</option>`).join('');}
+  else g.classList.add('hidden');
+}
+
+function enviarSolicitud(){
+  const tipo=document.getElementById('tipo').value;
+  const dias=document.getElementById('ndias').value;
+  const motivo=document.getElementById('motivo').value;
+  const fecha=document.getElementById('fecha-i').value;
+  if(!tipo||!dias||!motivo||!fecha){notify('⚠ Completa todos los campos requeridos','var(--red)');return;}
+  const sub=document.getElementById('subtipo')?.value||'-';
+  miSolicitud={id:solicitudes.length+1,emp:'Mi perfil',area:'IT Support',tipo,subtipo:sub,dias:parseInt(dias),inicio:fecha,motivo,status:'pendiente',etapa:'supervisor',prioridad:'media'};
+  solicitudes.push(miSolicitud);
+  logAction('📝',`Solicitud enviada — ${tipo}`,`${dias} días desde ${fecha}`,'var(--green)');
+  notify('✓ Solicitud enviada a tu supervisor. Te notificaremos cuando haya una respuesta.','var(--green)');
+  setTimeout(()=>renderTab(2),600);
+}
+
+function renderEmpMisSolicitudes(){
+  const mias=solicitudes.filter(s=>s.emp==='Mi perfil');
+  document.getElementById('content').innerHTML=`
+  <div class="card">
+    <div class="card-title">Mis solicitudes</div>
+    ${mias.length===0?`<div style="text-align:center;padding:30px;color:var(--muted)">No tienes solicitudes registradas.<br><button class="btn btn-accent" style="margin-top:12px" onclick="renderTab(1)">Crear solicitud</button></div>`
+    :mias.map(s=>`
+    <div class="sol-item">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:6px">
+        <div><div class="sol-name">${s.tipo} — ${s.subtipo}</div><div class="sol-meta">${s.dias} días desde ${s.inicio}</div></div>
+        ${statusPill(s.status)}
+      </div>
+      <div class="sol-body">"${s.motivo}"</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:4px">
+        ${s.status==='pendiente'?'⏳ En revisión con tu supervisor — 24 a 48h hábiles':s.status==='aprobado_supervisor'?'🔵 Aprobado por supervisor — Pendiente validación RH':s.status==='aprobado'?'✓ Aprobado — Se reflejará en tu historial':'✗ Denegado — Contacta a RH para más información'}
+      </div>
+    </div>`).join('')}
+  </div>
+  <div class="card">
+    <div class="card-title">¿Cómo funciona el proceso?</div>
+    <div class="tl">
+      ${[['Envías la solicitud','Tu solicitud llega a tu supervisor inmediatamente.','var(--blue)'],['Supervisor aprueba o deniega','Primera revisión en 24-48h hábiles.','var(--amber)'],['RH valida','Si el supervisor aprueba, RH hace la validación final.','var(--purple)'],['Recibes la resolución','Aprobación o denegación con comentario explicativo.','var(--green)']].map(([t,s,c])=>`
+      <div class="tl-item"><div class="tl-dot" style="background:${c}"></div><div class="tl-line"></div>
+        <div class="tl-title">${t}</div><div class="tl-sub">${s}</div>
+      </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+// ══ COMPARTIDA ════════════════════════════════════════════════════════════════
+function prediccionBase(){
+  document.getElementById('content').innerHTML=`
+  <div class="narrative"><strong>📅 Predicción de cobertura:</strong> IT Support enfrentará su punto más crítico la <strong>semana del 19-23 mayo</strong> cuando las vacaciones de Ana Salas se sumen al equipo ya reducido.</div>
+  <div class="card">
+    <div class="card-title">Cobertura proyectada — próximas 8 semanas</div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px">
+      ${[['IT Support','#f43f5e'],['Networking','#3b82f6'],['DevOps','#10b981'],['Security','#8b5cf6']].map(([a,c])=>`<div style="display:flex;align-items:center;gap:5px"><div style="width:10px;height:10px;border-radius:2px;background:${c}"></div><span style="font-size:11px;color:var(--muted)">${a}</span></div>`).join('')}
+    </div>
+    ${[['12–16 may',[65,85,88,90]],['19–23 may',[52,87,88,91]],['26–30 may',[70,88,90,91]],['2–6 jun',[78,86,91,91]],['9–13 jun',[80,87,91,91]]].map(([w,vals])=>`
+    <div class="pred-row">
+      <div class="pred-week">${w}</div>
+      <div class="pred-bars">
+        ${vals.map((v,i)=>{const c=['#f43f5e','#3b82f6','#10b981','#8b5cf6'][i];return `<div class="pred-area" style="background:${c};opacity:${v<60?1:v<75?.65:.4}" title="${['IT Support','Networking','DevOps','Security'][i]}: ${v}%">${v}%${v<60?'⚠':''}</div>`}).join('')}
+      </div>
+    </div>`).join('')}
+    <div style="font-size:10px;color:var(--muted);margin-top:8px">Celdas más intensas = mayor riesgo. IT Support semana 19-23 mayo es el punto crítico.</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Vacaciones por vencer <span class="card-tag" style="background:var(--red-dim);color:var(--red)">Mayo–Junio 2026</span></div>
+    ${[['Daniela Jimenez','Networking',6,'10 may','var(--muted)'],['Hugo Vega','IT Support',8,'12 may','var(--amber)'],['Ana Salas','IT Support',15,'19 may','var(--red)'],['Paula Ortiz','DevOps',9,'23 may','var(--amber)'],['Diego Ruiz','DevOps',11,'29 may','var(--amber)']].map(([n,a,d,f,c])=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">
+      <div style="flex:1"><div style="font-size:12px;font-weight:500">${n}${c==='var(--red)'?' ⚠':''}</div><div style="font-size:10px;color:var(--muted)">${a}</div></div>
+      <div style="font-size:18px;font-weight:600;font-family:monospace;color:${c}">${d}</div>
+      <div style="font-size:10px;color:var(--muted)">días</div>
+      <div style="padding:3px 8px;border-radius:6px;font-size:11px;background:${c==='var(--red)'?'var(--red-dim)':'var(--amb-dim)'};color:${c}">Vence ${f}</div>
+    </div>`).join('')}
+  </div>`;
+}
+</script>
+</body>
+</html>
